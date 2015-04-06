@@ -56,6 +56,9 @@
     <Reference Include="Dasein">
       <HintPath>..\packages\Dasein.1.0.2.0\lib\net40\Dasein.dll</HintPath>
     </Reference>
+    <Reference Include="FarseerPhysics">
+      <HintPath>..\packages\FarseerPhysics.3.5.0\lib\NET40\FarseerPhysics.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
