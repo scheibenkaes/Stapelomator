@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{4925A630-B079-445d-BCD4-3A9C94FE9307}") = "Stapelomator", "Stapelomator\Stapelomator.fsproj", "{7CFB9FE9-733C-4D89-B633-C53154BC6B66}"
+EndProject
+Project("{4925A630-B079-445d-BCD4-3A9C94FE9307}") = "Tests", "Tests\Tests.fsproj", "{649F28EE-CC31-409D-9F48-4085D3304AD6}"
+EndProject
+Project("{4925A630-B079-445d-BCD4-3A9C94FE9307}") = "Game", "Game\Game.fsproj", "{1DCB4685-E06C-4E1B-9AA2-35700FC58EC4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1DCB4685-E06C-4E1B-9AA2-35700FC58EC4}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1DCB4685-E06C-4E1B-9AA2-35700FC58EC4}.Debug|x86.Build.0 = Debug|Any CPU
+		{1DCB4685-E06C-4E1B-9AA2-35700FC58EC4}.Release|x86.ActiveCfg = Release|Any CPU
+		{1DCB4685-E06C-4E1B-9AA2-35700FC58EC4}.Release|x86.Build.0 = Release|Any CPU
+		{649F28EE-CC31-409D-9F48-4085D3304AD6}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{649F28EE-CC31-409D-9F48-4085D3304AD6}.Debug|x86.Build.0 = Debug|Any CPU
+		{649F28EE-CC31-409D-9F48-4085D3304AD6}.Release|x86.ActiveCfg = Release|Any CPU
+		{649F28EE-CC31-409D-9F48-4085D3304AD6}.Release|x86.Build.0 = Release|Any CPU
+		{7CFB9FE9-733C-4D89-B633-C53154BC6B66}.Debug|x86.ActiveCfg = Debug|x86
+		{7CFB9FE9-733C-4D89-B633-C53154BC6B66}.Debug|x86.Build.0 = Debug|x86
+		{7CFB9FE9-733C-4D89-B633-C53154BC6B66}.Release|x86.ActiveCfg = Release|x86
+		{7CFB9FE9-733C-4D89-B633-C53154BC6B66}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = Stapelomator\Stapelomator.fsproj
+	EndGlobalSection
+EndGlobal
