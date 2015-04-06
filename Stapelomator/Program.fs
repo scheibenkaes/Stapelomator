@@ -7,7 +7,7 @@ module Stapelomator.Main
 
 open System
 
-open Game.Core
+open Stapel.Core
 
 [<EntryPoint>]
 let main args =
