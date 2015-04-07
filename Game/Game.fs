@@ -11,7 +11,7 @@ open Dasein.Core
 open FarseerPhysics
 open FarseerPhysics.Dynamics
 open FarseerPhysics.Factories
-open FarseerPhysics.DebugView
+open FarseerPhysics.Collision
 
 open Stapel.Entities
 
@@ -20,6 +20,7 @@ let windowWidth = 800
 let (socketWidth, socketHeight) = 200, 100
 let pieceCreationTimeout = System.TimeSpan.FromSeconds 1.
 
+let debug = true
 
 let rnd = new System.Random()
 
@@ -46,15 +47,13 @@ type MyGame () as this =
     do this.IsMouseVisible <- true
 
     let world = new World(new Vector2(0.f, 9.82f))
-    
-    
-    let debugView = new DebugViewXNA(world)
         
     let mutable sock = Unchecked.defaultof<Entity>
     
     let mutable pieces : Entity list = []
     let mutable gameState = Running
     let mutable lastPieceCreatedAt = System.DateTime.Now
+    let mutable floor = Unchecked.defaultof<Entity>
     
     let createTexture () =
         let t = new Texture2D(this.GraphicsDevice, 1, 1)
@@ -84,18 +83,23 @@ type MyGame () as this =
                 System.Nullable(), 
                 color, body.Rotation, Vector2(0.5f, 0.5f), SpriteEffects.None, 1.f)
     
+    let collisionWithGround (f1: Fixture) (f2: Fixture) contact = 
+        printfn "game over"
+        gameState <- GameOver
+        true
+    
     let spawnNewPiece (at: Vector2) =
         let now = System.DateTime.Now
         if now >= lastPieceCreatedAt.Add(pieceCreationTimeout)
         then
             let (w, h) = randomPiece()
             let pos = ConvertUnits.ToSimUnits(at)
-            printfn "Creating body at %A size %A" pos (w,h)
-            printfn "in world: %A" (ConvertUnits.ToSimUnits(w), ConvertUnits.ToSimUnits(h))
             let b = BodyFactory.CreateRectangle(world, ConvertUnits.ToSimUnits(w), ConvertUnits.ToSimUnits(h), 1.f, pos)
             b.IsStatic <- false
             b.Friction <- 0.9f
             b.Restitution <- 0.0f
+            b.CollidesWith <- Category.Cat1 ||| Category.Cat10
+            
             
             let e = (newEntity "piece" 
                 |> addComponent {Body = b} 
@@ -110,15 +114,36 @@ type MyGame () as this =
         let mouseState = Mouse.GetState()
         if mouseState.LeftButton = ButtonState.Pressed
         then
-            printfn "clicked at %A" mouseState.Position
-            spawnNewPiece (new Vector2(float32(mouseState.Position.X), float32(mouseState.Position.Y)))
+            match (mouseState.Position.X, mouseState.Position.Y) with
+            | (x, y) when x >= 0 && y >= 0 ->
+                spawnNewPiece (new Vector2(float32(mouseState.Position.X), float32(mouseState.Position.Y)))
+            | _ -> ()
+            
+    let createFloor() =
+        let bounds = this.GraphicsDevice.Viewport.Bounds
+        let e = newEntity "floor"
+        
+        let center = Vector2(float32(bounds.Width / 2), float32(600 - 10))
+        let body = BodyFactory.CreateRectangle(world, float32(bounds.Width), 20.f, 1.f, center)
+        body.CollisionCategories <- Category.Cat10
+        body.IsStatic <- true
+        body.add_OnCollision (fun f1 f2 c -> collisionWithGround f1 f2 c)
+        
+        floor <- e |> addComponent {Body = body} |> addComponent {Texture = createTexture()}
+        
+    let renderFloor floor (sb: SpriteBatch) =
+        if debug
+        then
+            let body = getComponentValue<Bodyable>(floor).Body
+            let texture = getComponentValue<Drawable>(floor).Texture
+            sb.Draw(texture, new Rectangle(0, 600 - 20, 800, 20), Color.MediumVioletRed)
         
     override x.Draw(gametime: GameTime) =
         this.GraphicsDevice.Clear(Color.CornflowerBlue)
         spriteBatch.Begin()
+        renderFloor floor spriteBatch |> ignore
         renderSocket sock spriteBatch |> ignore
         renderPieces pieces spriteBatch |> ignore
-        
         spriteBatch.End()
 
     override x.Update(gameTime) =
@@ -141,8 +166,9 @@ type MyGame () as this =
         let socketBody = BodyFactory.CreateRectangle(world, ConvertUnits.ToSimUnits(socketWidth), ConvertUnits.ToSimUnits(socketHeight), 1.f, p)
         socketBody.IsStatic <- true
         socketBody.BodyType <- BodyType.Static
-        
         sock <- socket texture socketBody
+        
+        createFloor()
 
 
 

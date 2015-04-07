@@ -59,9 +59,6 @@
     <Reference Include="FarseerPhysics MonoGame">
       <HintPath>lib\FarseerPhysics MonoGame.dll</HintPath>
     </Reference>
-    <Reference Include="DebugView MonoGame">
-      <HintPath>lib\DebugView MonoGame.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
