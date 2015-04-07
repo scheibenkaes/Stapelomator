@@ -26,7 +26,7 @@ let rnd = new System.Random()
 
 let randomPiece () = (float32(rnd.Next(50, 150)), float32(rnd.Next(40, 60)))
 
-let pieceColors = [Color.ForestGreen; Color.Aquamarine; Color.BurlyWood]
+let pieceColors = [Color.ForestGreen; Color.Aquamarine; Color.BurlyWood; Color.DarkCyan; Color.Firebrick]
 
 let toRectangle x y w h = new Rectangle(int(x), int(y), int(w), int(h))
 
