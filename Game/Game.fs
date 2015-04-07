@@ -1,5 +1,7 @@
 module Stapel.Core
 
+open System
+
 open Microsoft.Xna.Framework
 open Microsoft.Xna.Framework.Graphics
 open Microsoft.Xna.Framework.Input
@@ -76,13 +78,11 @@ type MyGame () as this =
             let w = int(fst(s))
             let h = int(snd(s))
             
-            let center = Vector2(body.Position.X - fst(s)/2.f, body.Position.Y - snd(s)/2.f)
-            
             let position = ConvertUnits.ToDisplayUnits(body.Position)
-            
-            sb.Draw(t, new Rectangle(int(center.X), int(center.Y), w, h),
+            sb.Draw(t, 
+                new Rectangle(int(position.X), int(position.Y), w, h),
                 System.Nullable(), 
-                color, body.Rotation, Vector2(), SpriteEffects.None, 1.f)
+                color, body.Rotation, Vector2(0.5f, 0.5f), SpriteEffects.None, 1.f)
     
     let spawnNewPiece (at: Vector2) =
         let now = System.DateTime.Now
