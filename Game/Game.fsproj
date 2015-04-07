@@ -13,6 +13,7 @@
       <BuildOrder>
         <String>AssemblyInfo.fs</String>
         <String>Entities.fs</String>
+        <String>State.fs</String>
         <String>Game.fs</String>
       </BuildOrder>
     </BuildOrder>
@@ -64,6 +65,7 @@
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Game.fs" />
     <Compile Include="Entities.fs" />
+    <Compile Include="State.fs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft F#\v4.0\Microsoft.FSharp.Targets" />
   <ItemGroup>
@@ -77,10 +79,17 @@
     <Content Include="OpenTK.dll.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\Fonts\Font.spritefont">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Fonts\Font.xnb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Content\" />
     <Folder Include="Content\Images\" />
     <Folder Include="lib\" />
+    <Folder Include="Content\Fonts\" />
   </ItemGroup>
 </Project>

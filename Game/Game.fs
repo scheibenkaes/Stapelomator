@@ -14,6 +14,7 @@ open FarseerPhysics.Factories
 open FarseerPhysics.Collision
 
 open Stapel.Entities
+open Stapel.State
 
 let windowHeight = 600
 let windowWidth = 800
@@ -30,10 +31,12 @@ let pieceColors = [Color.ForestGreen; Color.Aquamarine; Color.BurlyWood; Color.D
 
 let toRectangle x y w h = new Rectangle(int(x), int(y), int(w), int(h))
 
-type GameState = 
+type RunningState = 
     | Running
     | GameOver
-
+    
+type GameEvent =
+    | ScoredPoints of int
 
 type MyGame () as this =
     inherit Game()
@@ -41,7 +44,7 @@ type MyGame () as this =
     let graphics = new GraphicsDeviceManager(this)
     let mutable spriteBatch = Unchecked.defaultof<SpriteBatch>
     
-    do this.Window.Title <- "Stack that s%$t"
+    do this.Window.Title <- "Stack that s%$t up!!1!"
     do graphics.PreferredBackBufferWidth <- windowWidth
     do graphics.PreferredBackBufferHeight <- windowHeight
     do this.IsMouseVisible <- true
@@ -54,6 +57,15 @@ type MyGame () as this =
     let mutable gameState = Running
     let mutable lastPieceCreatedAt = System.DateTime.Now
     let mutable floor = Unchecked.defaultof<Entity>
+    let mutable font = Unchecked.defaultof<SpriteFont>
+    let mutable state = initialState()
+    
+    let initGame() =
+        state <- initialState()
+    
+    let handleEvent (e: GameEvent) =    
+        match e with
+        | ScoredPoints p -> state <- {state with Points = state.Points + p}
     
     let createTexture () =
         let t = new Texture2D(this.GraphicsDevice, 1, 1)
@@ -84,7 +96,6 @@ type MyGame () as this =
                 color, body.Rotation, Vector2(0.5f, 0.5f), SpriteEffects.None, 1.f)
     
     let collisionWithGround (f1: Fixture) (f2: Fixture) contact = 
-        printfn "game over"
         gameState <- GameOver
         true
     
@@ -93,6 +104,7 @@ type MyGame () as this =
         if now >= lastPieceCreatedAt.Add(pieceCreationTimeout)
         then
             let (w, h) = randomPiece()
+            handleEvent(ScoredPoints(int(w * h) / 10))
             let pos = ConvertUnits.ToSimUnits(at)
             let b = BodyFactory.CreateRectangle(world, ConvertUnits.ToSimUnits(w), ConvertUnits.ToSimUnits(h), 1.f, pos)
             b.IsStatic <- false
@@ -138,12 +150,24 @@ type MyGame () as this =
             let texture = getComponentValue<Drawable>(floor).Texture
             sb.Draw(texture, new Rectangle(0, 600 - 20, 800, 20), Color.MediumVioletRed)
         
+    let renderGameOver (sb: SpriteBatch) =
+        sb.DrawString(font, "Game Over!!1!", Vector2(400.f, 300.f), Color.Red)
+
+    let renderTexts state (sb: SpriteBatch) =
+        let builder = new System.Text.StringBuilder("Points: ")
+        builder.Append state.Points |> ignore
+        sb.DrawString(font, builder, Vector2(0.f, 0.f), Color.White)
+                        
     override x.Draw(gametime: GameTime) =
         this.GraphicsDevice.Clear(Color.CornflowerBlue)
         spriteBatch.Begin()
         renderFloor floor spriteBatch |> ignore
         renderSocket sock spriteBatch |> ignore
         renderPieces pieces spriteBatch |> ignore
+        renderTexts state spriteBatch |> ignore
+        if gameState = GameOver
+        then
+            renderGameOver spriteBatch
         spriteBatch.End()
 
     override x.Update(gameTime) =
@@ -153,9 +177,14 @@ type MyGame () as this =
             checkInput()
         
     override x.LoadContent () =
+        initGame()
+        
         spriteBatch <- new SpriteBatch(this.GraphicsDevice)
         let texture = createTexture()
         let bounds = this.GraphicsDevice.Viewport
+        
+        this.Content.RootDirectory <- "Content"
+        font <- this.Content.Load<SpriteFont> "Fonts/Font"
         
         let x = bounds.Width / 2 - socketWidth / 2
         let y = bounds.Height - socketHeight - 25
