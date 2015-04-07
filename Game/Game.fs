@@ -6,8 +6,10 @@ open Microsoft.Xna.Framework.Input
 
 open Dasein.Core
 
+open FarseerPhysics
 open FarseerPhysics.Dynamics
 open FarseerPhysics.Factories
+open FarseerPhysics.DebugView
 
 open Stapel.Entities
 
@@ -21,11 +23,14 @@ let rnd = new System.Random()
 
 let randomPiece () = (float32(rnd.Next(50, 150)), float32(rnd.Next(40, 60)))
 
+let pieceColors = [Color.ForestGreen; Color.Aquamarine; Color.BurlyWood]
+
 let toRectangle x y w h = new Rectangle(int(x), int(y), int(w), int(h))
 
 type GameState = 
     | Running
     | GameOver
+
 
 type MyGame () as this =
     inherit Game()
@@ -39,9 +44,11 @@ type MyGame () as this =
     do this.IsMouseVisible <- true
 
     let world = new World(new Vector2(0.f, 9.82f))
+    
+    
+    let debugView = new DebugViewXNA(world)
         
     let mutable sock = Unchecked.defaultof<Entity>
-    let mutable socketBody = Unchecked.defaultof<Body>
     
     let mutable pieces : Entity list = []
     let mutable gameState = Running
@@ -53,32 +60,48 @@ type MyGame () as this =
         t
     
     let renderSocket s (sb: SpriteBatch) =
-        let t = getComponentValue<Drawable> s
-        let r = getComponentValue<StaticBody> s
-        let p = socketBody.Position
-        sb.Draw(t.Texture, new Rectangle(int(p.X), int(p.Y), r.Rect.Width, r.Rect.Height), Color.Beige)
+        let t = getComponentValue<Drawable>(s).Texture
+        let body = getComponentValue<Bodyable>(s).Body
+        let pos = ConvertUnits.ToDisplayUnits(body.Position) - Vector2(100.f, 50.f)
+        let rr = toRectangle pos.X pos.Y (float(socketWidth)) (float(socketHeight))
+        sb.Draw(t, rr, Color.Bisque)
     
     let renderPieces pieces (sb: SpriteBatch) = 
         for p in pieces do
             let body = getComponentValue<Bodyable>(p).Body
             let t = getComponentValue<Drawable>(p).Texture
             let s = getComponentValue<Sizeable>(p).Size
-            let r = toRectangle body.Position.X body.Position.Y (fst(s)) (snd(s))
-            sb.Draw(t, r, Color.IndianRed)
+            let color = getComponentValue<Colorable>(p).Color
+            
+            let w = int(fst(s))
+            let h = int(snd(s))
+            
+            let center = Vector2(body.Position.X - fst(s)/2.f, body.Position.Y - snd(s)/2.f)
+            
+            let position = ConvertUnits.ToDisplayUnits(body.Position)
+            
+            sb.Draw(t, new Rectangle(int(center.X), int(center.Y), w, h),
+                System.Nullable(), 
+                color, body.Rotation, Vector2(), SpriteEffects.None, 1.f)
     
-    let spawnNewPiece at =
+    let spawnNewPiece (at: Vector2) =
         let now = System.DateTime.Now
-        
         if now >= lastPieceCreatedAt.Add(pieceCreationTimeout)
         then
             let (w, h) = randomPiece()
-            let b = BodyFactory.CreateRectangle(world, w, h, 1.f)
-            b.Position <- at
+            let pos = ConvertUnits.ToSimUnits(at)
+            printfn "Creating body at %A size %A" pos (w,h)
+            printfn "in world: %A" (ConvertUnits.ToSimUnits(w), ConvertUnits.ToSimUnits(h))
+            let b = BodyFactory.CreateRectangle(world, ConvertUnits.ToSimUnits(w), ConvertUnits.ToSimUnits(h), 1.f, pos)
             b.IsStatic <- false
+            b.Friction <- 0.9f
+            b.Restitution <- 0.0f
+            
             let e = (newEntity "piece" 
                 |> addComponent {Body = b} 
                 |> addComponent {Texture = createTexture()} 
-                |> addComponent {Size = (w, h)})
+                |> addComponent {Size = (ConvertUnits.ToSimUnits(w), ConvertUnits.ToSimUnits(h))}
+                |> addComponent {Color = pieceColors.[(rnd.Next(0, pieceColors.Length - 1))]})
             pieces <- e :: pieces
             lastPieceCreatedAt <- now
         
@@ -87,6 +110,7 @@ type MyGame () as this =
         let mouseState = Mouse.GetState()
         if mouseState.LeftButton = ButtonState.Pressed
         then
+            printfn "clicked at %A" mouseState.Position
             spawnNewPiece (new Vector2(float32(mouseState.Position.X), float32(mouseState.Position.Y)))
         
     override x.Draw(gametime: GameTime) =
@@ -94,27 +118,32 @@ type MyGame () as this =
         spriteBatch.Begin()
         renderSocket sock spriteBatch |> ignore
         renderPieces pieces spriteBatch |> ignore
+        
         spriteBatch.End()
-        ()
 
     override x.Update(gameTime) =
         if gameState = Running
         then
-            world.Step(0.001f * float32(gameTime.ElapsedGameTime.TotalMilliseconds))
+            world.Step(0.01f * float32(gameTime.ElapsedGameTime.TotalMilliseconds))
             checkInput()
-        ()
         
     override x.LoadContent () =
         spriteBatch <- new SpriteBatch(this.GraphicsDevice)
         let texture = createTexture()
-        let bounds = this.Window.ClientBounds
-        let x = windowWidth / 2 - socketWidth / 2
-        let y = windowHeight - socketHeight - 25
-        let rect = new Rectangle(x, y, socketWidth, socketHeight)
-        sock <- socket texture (rect)
+        let bounds = this.GraphicsDevice.Viewport
         
-        socketBody <- BodyFactory.CreateRectangle(world, float32(rect.Width), float32(rect.Height), 1.f, new Vector2(float32(x), float32(y)))
-        ()
+        let x = bounds.Width / 2 - socketWidth / 2
+        let y = bounds.Height - socketHeight - 25
+        
+        ConvertUnits.SetDisplayUnitToSimUnitRatio(1.f)
+        let p = new Vector2(float32(x), float32(y)) |> ConvertUnits.ToSimUnits
+        
+        let socketBody = BodyFactory.CreateRectangle(world, ConvertUnits.ToSimUnits(socketWidth), ConvertUnits.ToSimUnits(socketHeight), 1.f, p)
+        socketBody.IsStatic <- true
+        socketBody.BodyType <- BodyType.Static
+        
+        sock <- socket texture socketBody
+
 
 
 let runGame () =

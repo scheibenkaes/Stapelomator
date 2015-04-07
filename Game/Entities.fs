@@ -18,18 +18,14 @@ module Entities =
         Body: Body
     }
 
-    type Positionable = {
-        Position : Vector2
+    type Colorable = {
+        Color: Color
     }
     
     type Sizeable = {
         Size : float32 * float32
     }
-    
-    type StaticBody = {
-        Rect : Rectangle
-    }
 
-    let socket (texture: Texture2D) rect = 
+    let socket (texture: Texture2D) body = 
         let e = newEntity "socket"
-        e |> addComponent {Texture = texture} |> addComponent {Rect = rect}
+        e |> addComponent {Texture = texture} |> addComponent {Body = body}
