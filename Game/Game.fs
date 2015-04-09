@@ -48,8 +48,6 @@ type MyGame () as this =
     do graphics.PreferredBackBufferHeight <- windowHeight
     do this.IsMouseVisible <- true
 
-    let world = new World(new Vector2(0.f, 9.82f))
-        
     let mutable sock = Unchecked.defaultof<Entity>
     
     let mutable pieces : Entity list = []
@@ -93,7 +91,7 @@ type MyGame () as this =
             let (w, h) = randomPiece()
             handleEvent(ScoredPoints(int(w * h) / 10))
             let pos = ConvertUnits.ToSimUnits(at)
-            let b = BodyFactory.CreateRectangle(world, ConvertUnits.ToSimUnits(float w), ConvertUnits.ToSimUnits(float h), 1.f, pos)
+            let b = BodyFactory.CreateRectangle(state.World, ConvertUnits.ToSimUnits(float w), ConvertUnits.ToSimUnits(float h), 1.f, pos)
             b.IsStatic <- false
             b.Friction <- 0.9f
             b.Restitution <- 0.0f
@@ -124,7 +122,7 @@ type MyGame () as this =
         let (x, y) = float32(bounds.Width / 2), float32(bounds.Height - 10)
         let h = 20.f
         let center = Vector2(x, y) |> ConvertUnits.ToSimUnits
-        let body = BodyFactory.CreateRectangle(world, float32(bounds.Width) |> ConvertUnits.ToSimUnits, h |> ConvertUnits.ToSimUnits, 1.f, center)
+        let body = BodyFactory.CreateRectangle(state.World, float32(bounds.Width) |> ConvertUnits.ToSimUnits, h |> ConvertUnits.ToSimUnits, 1.f, center)
         body.CollisionCategories <- Category.Cat10
         body.IsStatic <- true
         body.add_OnCollision (fun f1 f2 c -> collisionWithGround f1 f2 c)
@@ -157,7 +155,7 @@ type MyGame () as this =
     override x.Update(gameTime) =
         if gameState = Running
         then
-            world.Step(0.01f * float32(gameTime.ElapsedGameTime.TotalMilliseconds))
+            state.World.Step(0.01f * float32(gameTime.ElapsedGameTime.TotalMilliseconds))
             checkInput()
         
     override x.LoadContent () =
@@ -174,7 +172,7 @@ type MyGame () as this =
         ConvertUnits.SetDisplayUnitToSimUnitRatio(2.f)
         let p = new Vector2(float32(x), float32(y)) |> ConvertUnits.ToSimUnits
         
-        let socketBody = BodyFactory.CreateRectangle(world, ConvertUnits.ToSimUnits(socketWidth), ConvertUnits.ToSimUnits(socketHeight), 1.f, p)
+        let socketBody = BodyFactory.CreateRectangle(state.World, ConvertUnits.ToSimUnits(socketWidth), ConvertUnits.ToSimUnits(socketHeight), 1.f, p)
         socketBody.IsStatic <- true
         socketBody.BodyType <- BodyType.Static
         sock <- (socket (createTexture()) socketBody 
