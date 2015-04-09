@@ -19,11 +19,9 @@ open Stapel.State
 let windowHeight = 600
 let windowWidth = 800
 let (socketWidth, socketHeight) = 200, 100
-let pieceCreationTimeout = System.TimeSpan.FromSeconds 1.
+let pieceCreationTimeout = System.TimeSpan.FromSeconds 0.5
 
-let debug = true
-
-let rnd = new System.Random()
+let rnd = Random()
 
 let randomPiece () = (float32(rnd.Next(50, 150)), float32(rnd.Next(40, 60)))
 
@@ -55,7 +53,7 @@ type MyGame () as this =
     
     let mutable pieces : Entity list = []
     let mutable gameState = Running
-    let mutable lastPieceCreatedAt = System.DateTime.Now
+    let mutable lastPieceCreatedAt = DateTime.Now
     let mutable floor = Unchecked.defaultof<Entity>
     let mutable font = Unchecked.defaultof<SpriteFont>
     let mutable state = initialState()
@@ -92,7 +90,7 @@ type MyGame () as this =
             let position = ConvertUnits.ToDisplayUnits(body.Position)
             sb.Draw(t, 
                 new Rectangle(int(position.X), int(position.Y), w, h),
-                System.Nullable(), 
+                Nullable(), 
                 color, body.Rotation, Vector2(0.5f, 0.5f), SpriteEffects.None, 1.f)
     
     let collisionWithGround (f1: Fixture) (f2: Fixture) contact = 
@@ -100,7 +98,7 @@ type MyGame () as this =
         true
     
     let spawnNewPiece (at: Vector2) =
-        let now = System.DateTime.Now
+        let now = DateTime.Now
         if now >= lastPieceCreatedAt.Add(pieceCreationTimeout)
         then
             let (w, h) = randomPiece()
@@ -144,11 +142,9 @@ type MyGame () as this =
         floor <- e |> addComponent {Body = body} |> addComponent {Texture = createTexture()}
         
     let renderFloor floor (sb: SpriteBatch) =
-        if debug
-        then
-            let body = getComponentValue<Bodyable>(floor).Body
-            let texture = getComponentValue<Drawable>(floor).Texture
-            sb.Draw(texture, new Rectangle(0, 600 - 20, 800, 20), Color.MediumVioletRed)
+        let body = getComponentValue<Bodyable>(floor).Body
+        let texture = getComponentValue<Drawable>(floor).Texture
+        sb.Draw(texture, new Rectangle(0, 600 - 20, 800, 20), Color.MediumVioletRed)
         
     let renderGameOver (sb: SpriteBatch) =
         sb.DrawString(font, "Game Over!!1!", Vector2(400.f, 300.f), Color.Red)
