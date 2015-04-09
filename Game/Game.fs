@@ -30,10 +30,7 @@ let pieceColors = [Color.ForestGreen; Color.Aquamarine; Color.BurlyWood; Color.D
 
 let toRectangle x y w h = new Rectangle(int(x), int(y), int(w), int(h))
 
-type RunningState = 
-    | Running
-    | GameOver
-    
+
 type GameEvent =
     | ScoredPoints of int
 
@@ -50,8 +47,6 @@ type MyGame () as this =
 
     let mutable sock = Unchecked.defaultof<Entity>
     
-    let mutable pieces : Entity list = []
-    let mutable gameState = Running
     let mutable lastPieceCreatedAt = DateTime.Now
     let mutable floor = Unchecked.defaultof<Entity>
     let mutable font = Unchecked.defaultof<SpriteFont>
@@ -81,7 +76,7 @@ type MyGame () as this =
             color, body.Rotation, Vector2(0.5f, 0.5f), SpriteEffects.None, 1.f)
     
     let collisionWithGround (f1: Fixture) (f2: Fixture) contact = 
-        gameState <- GameOver
+        state <- {state with RunningState = GameOver}
         true
     
     let spawnNewPiece (at: Vector2) =
@@ -97,13 +92,12 @@ type MyGame () as this =
             b.Restitution <- 0.0f
             b.CollidesWith <- Category.Cat1 ||| Category.Cat10
             
-            
             let e = (newEntity "piece" 
                 |> addComponent {Body = b} 
                 |> addComponent {Texture = createTexture()} 
                 |> addComponent {Size = (w, h)}
                 |> addComponent {Color = pieceColors.[(rnd.Next(0, pieceColors.Length - 1))]})
-            pieces <- e :: pieces
+            state <- addPiece state e
             lastPieceCreatedAt <- now
         
         
@@ -133,30 +127,61 @@ type MyGame () as this =
             |> addComponent {Size = (float32(bounds.Width) * 1.0f<display>, h * 1.0f<display>)})
         
     let renderGameOver (sb: SpriteBatch) =
-        sb.DrawString(font, "Game Over!!1!", Vector2(400.f, 300.f), Color.Red)
+        let x = float32(this.GraphicsDevice.Viewport.Width / 2 - 45)
+        let y = float32(this.GraphicsDevice.Viewport.Height / 2)
+        sb.DrawString(font, "Game Over!!1!", Vector2(x, y), Color.Red)
+        sb.DrawString(font, String.Format("You scored {0} points!", state.Points), Vector2(x, y + 20.f), Color.Red)
+        sb.DrawString(font, "Press F5 to restart!", Vector2(x, y + 20.f * 2.f), Color.Red)
 
     let renderTexts state (sb: SpriteBatch) =
         let builder = new System.Text.StringBuilder("Points: ")
         builder.Append state.Points |> ignore
         sb.DrawString(font, builder, Vector2(0.f, 0.f), Color.White)
-                        
+    
+    let createSocket () =
+        let bounds = this.GraphicsDevice.Viewport
+        let x = bounds.Width / 2
+        let y = bounds.Height - socketHeight + 35
+        ConvertUnits.SetDisplayUnitToSimUnitRatio(2.f)
+        let p = new Vector2(float32(x), float32(y)) |> ConvertUnits.ToSimUnits
+        
+        let socketBody = BodyFactory.CreateRectangle(state.World, ConvertUnits.ToSimUnits(socketWidth), ConvertUnits.ToSimUnits(socketHeight), 1.f, p)
+        socketBody.IsStatic <- true
+        socketBody.BodyType <- BodyType.Static
+        sock <- (socket (createTexture()) socketBody 
+            |> addComponent {Size = (float32(socketWidth) * 1.0f<display>, float32(socketHeight) * 1.0f<display>)}
+            |> addComponent {Color = Color.DarkKhaki})
+    
+    let isRestartPressed() =
+        let keyboard = Keyboard.GetState()
+        keyboard.IsKeyDown(Keys.F5)
+    
+    let resetGame () =
+        initGame()
+        createFloor()
+        createSocket()
+    
     override x.Draw(gametime: GameTime) =
         this.GraphicsDevice.Clear(Color.CornflowerBlue)
         spriteBatch.Begin()
         renderEntity floor spriteBatch |> ignore
         renderEntity sock spriteBatch |> ignore
-        pieces |> List.iter (fun p -> renderEntity p spriteBatch)
+        state.Pieces |> List.iter (fun p -> renderEntity p spriteBatch)
         renderTexts state spriteBatch |> ignore
-        if gameState = GameOver
+        if state.RunningState = GameOver
         then
             renderGameOver spriteBatch
         spriteBatch.End()
 
     override x.Update(gameTime) =
-        if gameState = Running
+        if state.RunningState = Running
         then
             state.World.Step(0.01f * float32(gameTime.ElapsedGameTime.TotalMilliseconds))
             checkInput()
+        else    
+            if isRestartPressed()
+            then
+                resetGame()
         
     override x.LoadContent () =
         initGame()
