@@ -71,25 +71,16 @@ type MyGame () as this =
         t.SetData [| Color.White |]
         t
     
-    let renderSocket s (sb: SpriteBatch) =
-        let t = getComponentValue<Drawable>(s).Texture
-        let body = getComponentValue<Bodyable>(s).Body
-        let pos = ConvertUnits.ToDisplayUnits(body.Position) // - Vector2(100.f, 50.f)
-        let rr = getRenderRectangle s //toRectangle pos.X pos.Y (float(socketWidth)) (float(socketHeight))
-        sb.Draw(t, rr, Color.Bisque)
-    
-    let renderPieces pieces (sb: SpriteBatch) = 
-        for p in pieces do
-            let body = getComponentValue<Bodyable>(p).Body
-            let t = getComponentValue<Drawable>(p).Texture
-            let (w,h) = getComponentValue<Sizeable>(p).Size
-            let color = getComponentValue<Colorable>(p).Color
-            
-            let position = ConvertUnits.ToDisplayUnits(body.Position)
-            sb.Draw(t, 
-                new Rectangle(int(position.X), int(position.Y), int(w), int(h)),
-                Nullable(), 
-                color, body.Rotation, Vector2(0.5f, 0.5f), SpriteEffects.None, 1.f)
+    let renderEntity e (sb: SpriteBatch) =
+        let t = getComponentValue<Drawable>(e).Texture
+        let body = getComponentValue<Bodyable>(e).Body
+        let (w,h) = getComponentValue<Sizeable>(e).Size
+        let color = getComponentValue<Colorable>(e).Color
+        let position = ConvertUnits.ToDisplayUnits(body.Position)
+        sb.Draw(t, 
+            new Rectangle(int(position.X), int(position.Y), int(w), int(h)),
+            Nullable(), 
+            color, body.Rotation, Vector2(0.5f, 0.5f), SpriteEffects.None, 1.f)
     
     let collisionWithGround (f1: Fixture) (f2: Fixture) contact = 
         gameState <- GameOver
@@ -130,19 +121,18 @@ type MyGame () as this =
     let createFloor() =
         let bounds = this.GraphicsDevice.Viewport.Bounds
         let e = newEntity "floor"
-        
-        let center = Vector2(float32(bounds.Width / 2), float32(bounds.Height - 10))
-        let body = BodyFactory.CreateRectangle(world, float32(bounds.Width), 20.f, 1.f, center)
+        let (x, y) = float32(bounds.Width / 2), float32(bounds.Height - 10)
+        let h = 20.f
+        let center = Vector2(x, y) |> ConvertUnits.ToSimUnits
+        let body = BodyFactory.CreateRectangle(world, float32(bounds.Width) |> ConvertUnits.ToSimUnits, h |> ConvertUnits.ToSimUnits, 1.f, center)
         body.CollisionCategories <- Category.Cat10
         body.IsStatic <- true
         body.add_OnCollision (fun f1 f2 c -> collisionWithGround f1 f2 c)
         
-        floor <- e |> addComponent {Body = body} |> addComponent {Texture = createTexture()}
-        
-    let renderFloor floor (sb: SpriteBatch) =
-        let body = getComponentValue<Bodyable>(floor).Body
-        let texture = getComponentValue<Drawable>(floor).Texture
-        sb.Draw(texture, new Rectangle(0, 600 - 20, 800, 20), Color.MediumVioletRed)
+        floor <- (e |> addComponent {Body = body} 
+            |> addComponent {Texture = createTexture()} 
+            |> addComponent {Color = Color.PaleVioletRed}
+            |> addComponent {Size = (float32(bounds.Width) * 1.0f<display>, h * 1.0f<display>)})
         
     let renderGameOver (sb: SpriteBatch) =
         sb.DrawString(font, "Game Over!!1!", Vector2(400.f, 300.f), Color.Red)
@@ -155,9 +145,9 @@ type MyGame () as this =
     override x.Draw(gametime: GameTime) =
         this.GraphicsDevice.Clear(Color.CornflowerBlue)
         spriteBatch.Begin()
-        renderFloor floor spriteBatch |> ignore
-        renderSocket sock spriteBatch |> ignore
-        renderPieces pieces spriteBatch |> ignore
+        renderEntity floor spriteBatch |> ignore
+        renderEntity sock spriteBatch |> ignore
+        pieces |> List.iter (fun p -> renderEntity p spriteBatch)
         renderTexts state spriteBatch |> ignore
         if gameState = GameOver
         then
@@ -181,13 +171,15 @@ type MyGame () as this =
         let bounds = this.GraphicsDevice.Viewport
         let x = bounds.Width / 2
         let y = bounds.Height - socketHeight + 35
-        ConvertUnits.SetDisplayUnitToSimUnitRatio(1.f)
+        ConvertUnits.SetDisplayUnitToSimUnitRatio(2.f)
         let p = new Vector2(float32(x), float32(y)) |> ConvertUnits.ToSimUnits
         
         let socketBody = BodyFactory.CreateRectangle(world, ConvertUnits.ToSimUnits(socketWidth), ConvertUnits.ToSimUnits(socketHeight), 1.f, p)
         socketBody.IsStatic <- true
         socketBody.BodyType <- BodyType.Static
-        sock <- socket (createTexture()) socketBody |> addComponent {Size = (float32(socketWidth) * 1.0f<display>, float32(socketHeight) * 1.0f<display>)}
+        sock <- (socket (createTexture()) socketBody 
+            |> addComponent {Size = (float32(socketWidth) * 1.0f<display>, float32(socketHeight) * 1.0f<display>)}
+            |> addComponent {Color = Color.DarkKhaki})
         
         createFloor()
 
