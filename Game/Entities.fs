@@ -10,6 +10,12 @@ module Entities =
 
     open Dasein.Core
 
+    [<Measure>]
+    type sim
+
+    [<Measure>]
+    type display
+
     type Drawable = {
         Texture : Texture2D
     }
@@ -23,7 +29,7 @@ module Entities =
     }
     
     type Sizeable = {
-        Size : float32 * float32
+        Size : float32<display> * float32<display>
     }
 
     let socket (texture: Texture2D) body = 
