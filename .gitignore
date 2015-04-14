@@ -5,3 +5,7 @@
 /Tests/bin/
 /Tests/test-results/
 /Stapelomator.Windows/bin/
+Stapelomator.Windows/obj/
+Game/obj/
+Stapelomator/obj/
+Tests/obj/

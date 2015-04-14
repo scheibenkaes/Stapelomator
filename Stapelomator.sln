@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{4925A630-B079-445d-BCD4-3A9C94FE9307}") = "Stapelomator.Linux", "Stapelomator\Stapelomator.Linux.fsproj", "{7CFB9FE9-733C-4D89-B633-C53154BC6B66}"
+Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "Stapelomator.Linux", "Stapelomator\Stapelomator.Linux.fsproj", "{7CFB9FE9-733C-4D89-B633-C53154BC6B66}"
 EndProject
-Project("{4925A630-B079-445d-BCD4-3A9C94FE9307}") = "Tests", "Tests\Tests.fsproj", "{649F28EE-CC31-409D-9F48-4085D3304AD6}"
+Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "Tests", "Tests\Tests.fsproj", "{649F28EE-CC31-409D-9F48-4085D3304AD6}"
 EndProject
-Project("{4925A630-B079-445d-BCD4-3A9C94FE9307}") = "Game", "Game\Game.fsproj", "{1DCB4685-E06C-4E1B-9AA2-35700FC58EC4}"
+Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "Game", "Game\Game.fsproj", "{1DCB4685-E06C-4E1B-9AA2-35700FC58EC4}"
 EndProject
-Project("{4925A630-B079-445d-BCD4-3A9C94FE9307}") = "Stapelomator.Windows", "Stapelomator.Windows\Stapelomator.Windows.fsproj", "{48E04731-3257-46C1-937F-AB051D17CCC3}"
+Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "Stapelomator.Windows", "Stapelomator.Windows\Stapelomator.Windows.fsproj", "{48E04731-3257-46C1-937F-AB051D17CCC3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,8 +31,5 @@ Global
 		{7CFB9FE9-733C-4D89-B633-C53154BC6B66}.Debug|x86.Build.0 = Debug|x86
 		{7CFB9FE9-733C-4D89-B633-C53154BC6B66}.Release|x86.ActiveCfg = Release|x86
 		{7CFB9FE9-733C-4D89-B633-C53154BC6B66}.Release|x86.Build.0 = Release|x86
-	EndGlobalSection
-	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = Stapelomator\Stapelomator.Linux.fsproj
 	EndGlobalSection
 EndGlobal
