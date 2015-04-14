@@ -7,6 +7,8 @@ Project("{4925A630-B079-445d-BCD4-3A9C94FE9307}") = "Tests", "Tests\Tests.fsproj
 EndProject
 Project("{4925A630-B079-445d-BCD4-3A9C94FE9307}") = "Game", "Game\Game.fsproj", "{1DCB4685-E06C-4E1B-9AA2-35700FC58EC4}"
 EndProject
+Project("{4925A630-B079-445d-BCD4-3A9C94FE9307}") = "Stapelomator.Windows", "Stapelomator.Windows\Stapelomator.Windows.fsproj", "{48E04731-3257-46C1-937F-AB051D17CCC3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -17,6 +19,10 @@ Global
 		{1DCB4685-E06C-4E1B-9AA2-35700FC58EC4}.Debug|x86.Build.0 = Debug|Any CPU
 		{1DCB4685-E06C-4E1B-9AA2-35700FC58EC4}.Release|x86.ActiveCfg = Release|Any CPU
 		{1DCB4685-E06C-4E1B-9AA2-35700FC58EC4}.Release|x86.Build.0 = Release|Any CPU
+		{48E04731-3257-46C1-937F-AB051D17CCC3}.Debug|x86.ActiveCfg = Debug|x86
+		{48E04731-3257-46C1-937F-AB051D17CCC3}.Debug|x86.Build.0 = Debug|x86
+		{48E04731-3257-46C1-937F-AB051D17CCC3}.Release|x86.ActiveCfg = Release|x86
+		{48E04731-3257-46C1-937F-AB051D17CCC3}.Release|x86.Build.0 = Release|x86
 		{649F28EE-CC31-409D-9F48-4085D3304AD6}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{649F28EE-CC31-409D-9F48-4085D3304AD6}.Debug|x86.Build.0 = Debug|Any CPU
 		{649F28EE-CC31-409D-9F48-4085D3304AD6}.Release|x86.ActiveCfg = Release|Any CPU
