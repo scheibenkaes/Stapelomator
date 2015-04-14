@@ -40,7 +40,6 @@ type MyGame () as this =
     let graphics = new GraphicsDeviceManager(this)
     let mutable spriteBatch = Unchecked.defaultof<SpriteBatch>
     
-    do this.Window.Title <- "Stack that s%$t up!!1!"
     do graphics.PreferredBackBufferWidth <- windowWidth
     do graphics.PreferredBackBufferHeight <- windowHeight
     do this.IsMouseVisible <- true
