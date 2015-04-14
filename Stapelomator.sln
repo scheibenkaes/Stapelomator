@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{4925A630-B079-445d-BCD4-3A9C94FE9307}") = "Stapelomator", "Stapelomator\Stapelomator.fsproj", "{7CFB9FE9-733C-4D89-B633-C53154BC6B66}"
+Project("{4925A630-B079-445d-BCD4-3A9C94FE9307}") = "Stapelomator.Linux", "Stapelomator\Stapelomator.Linux.fsproj", "{7CFB9FE9-733C-4D89-B633-C53154BC6B66}"
 EndProject
 Project("{4925A630-B079-445d-BCD4-3A9C94FE9307}") = "Tests", "Tests\Tests.fsproj", "{649F28EE-CC31-409D-9F48-4085D3304AD6}"
 EndProject
@@ -27,6 +27,6 @@ Global
 		{7CFB9FE9-733C-4D89-B633-C53154BC6B66}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = Stapelomator\Stapelomator.fsproj
+		StartupItem = Stapelomator\Stapelomator.Linux.fsproj
 	EndGlobalSection
 EndGlobal
