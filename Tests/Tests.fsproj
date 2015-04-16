@@ -61,7 +61,7 @@
   <ItemGroup>
     <Compile Include="Test.fs" />
   </ItemGroup>
-  <Import Project="C:\Program Files (x86)\Microsoft SDKs\F#\3.1\Framework\v4.0\Microsoft.FSharp.Targets" />
+  <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft F#\v4.0\Microsoft.FSharp.Targets" />
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="OpenTK.dll.config" />
