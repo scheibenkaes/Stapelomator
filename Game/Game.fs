@@ -80,7 +80,7 @@ type MyGame () as this =
     
     let spawnNewPiece (at: Vector2) =
         let now = DateTime.Now
-        if now >= lastPieceCreatedAt.Add(pieceCreationTimeout)
+        if now >= lastPieceCreatedAt + pieceCreationTimeout
         then
             let (w, h) = randomPiece()
             handleEvent(ScoredPoints(int(w * h) / 10))
